@@ -1,7 +1,19 @@
 from fastapi import FastAPI
+from pydantic import BaseModel # Importamos BaseModel de Pydantic
+from typing import Optional # Lo mantenemos por si lo usamos en otros lados
 
 # 1. Crear una instancia de la aplicación FastAPI
 app = FastAPI()
+
+
+# Modelo Pydantic para los datos de entrada del saludo
+# Esto define la "forma" o "esquema" de los datos que esperamos.
+"""Todas las clases que definen esquemas de datos con Pydantic
+deben heredar de BaseModel.
+"""
+class SaludoRequest(BaseModel):
+    nombre: str
+    edad: None | int = None # Hacemos la edad opcional
 
 
 # 2. Definir una ruta y su función asociada
@@ -100,6 +112,29 @@ q será None dentro de la función.
 Ejemplo de URL: /items/5?q=mi-busqueda (aquí item_id es 5, q es "mi-busqueda")
 Ejemplo de URL: /items/10 (aquí item_id es 10, q es None)
 """
+
+
+# Nuevo endpoint para manejar POST con validación Pydantic
+@app.post("/api/crear_saludo_fastapi", status_code=201) # Podemos definir el status_code por defecto aquí
+async def api_crear_saludo_fastapi_post(datos_saludo: SaludoRequest):
+     # 'datos_saludo' será una instancia de SaludoRequest.
+    # FastAPI automáticamente:
+    # 1. Lee el cuerpo de la solicitud.
+    # 2. Valida que sea un JSON con los campos 'nombre' (str) y opcionalmente 'edad' (int).
+    # 3. Si la validación falla, devuelve un error 422 Unprocessable Entity con detalles.
+    # 4. Si la validación es exitosa, convierte los datos en una instancia de SaludoRequest.
+
+    mensaje_respuesta = f"¡Hola, {datos_saludo.nombre}! Tu saludo ha sido procesado por FastAPI."
+    if datos_saludo.edad is not None:
+        mensaje_respuesta += f" Veo que tiene {datos_saludo.edad} años."
+    
+    respuesta = {
+        "mensaje": mensaje_respuesta,
+        "datos_recibidos": datos_saludo.model_dump()  # .dict() en Pydantic v1
+    }
+    return respuesta
+
+
 
 # No necesitamos el bloque if __name__ == '__main__': app.run() aquí.
 # La aplicación se ejecuta con un servidor ASGI como Uvicorn desde la terminal.
