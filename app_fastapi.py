@@ -134,6 +134,11 @@ async def api_crear_saludo_fastapi_post(datos_saludo: SaludoRequest):
     }
     return respuesta
 
+    """Los modelos Pydantic tienen un método .model_dump()
+    (o .dict() en Pydantic v1) que devuelve una representación
+    de diccionario del modelo, lo cual es útil si quieres devolver
+    los datos recibidos en la respuesta.
+    """
 
 
 # No necesitamos el bloque if __name__ == '__main__': app.run() aquí.

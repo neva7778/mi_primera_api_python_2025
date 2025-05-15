@@ -17,7 +17,8 @@ url_flask_saludo_post = "http://127.0.0.1:5000/api/crear_saludo" # Nuevo endpoin
 
 # URLs de nuestros endpoints FastAPI
 url_fastapi_raiz = "http://127.0.0.1:8000/"
-url_fastapi_item = "http://127.0.0.1:8000/items/42?q=consulta_desde_cliente"
+url_fastapi_item_get = "http://127.0.0.1:8000/items/42?q=consulta_desde_cliente"
+url_fastapi_saludo_post = "http://127.0.0.1:8000/api/crear_saludo_fastapi" # Nuevo endpoint
 
 
 """try...except requests.exceptions.RequestException as e:: Es una buena
@@ -105,31 +106,65 @@ ota que desde la perspectiva del cliente que usa requests,
 es idéntica, ya sea que el backend esté hecho con Flask o FastAPI!
 """
 
-print("--- Probando API FastAPI (Raíz) ---")
+
+print("--- Probando API FastAPI (Raíz GET) ---")
 try:
     response_fastapi_raiz = requests.get(url_fastapi_raiz)
     response_fastapi_raiz.raise_for_status()
-
     datos_fastapi_raiz = response_fastapi_raiz.json()
-    print(f"Respuesta de FastAPI Raíz (código {response_fastapi_raiz.status_code}):")
+    print(f"Respuesta de FastAPI Raíz GET (código {response_fastapi_raiz.status_code}):")
     print(json.dumps(datos_fastapi_raiz, indent=2, ensure_ascii=False))
     print("-" * 30)
-
 except requests.exceptions.RequestException as e:
-    print(f"Error al conectar con la API de FastAPI (Raíz): {e}")
+    print(f"Error al conectar con la API de FastAPI (Raíz GET): {e}")
     print("-" * 30)
 
-print("--- Probando API FastAPI (Item) ---")
+print("--- Probando API FastAPI (Item GET) ---")
 try:
-    response_fastapi_item = requests.get(url_fastapi_item)
+    response_fastapi_item = requests.get(url_fastapi_item_get)
     response_fastapi_item.raise_for_status()
-
     datos_fastapi_item = response_fastapi_item.json()
-    print(f"Respuesta de FastAPI Item (código {response_fastapi_item.status_code}):")
+    print(f"Respuesta de FastAPI Item GET (código {response_fastapi_item.status_code}):")
     print(json.dumps(datos_fastapi_item, indent=2, ensure_ascii=False))
     print("-" * 30)
-
 except requests.exceptions.RequestException as e:
-    print(f"Error al conectar con la API de FastAPI (Item): {e}")
+    print(f"Error al conectar con la API de FastAPI (Item GET): {e}")
     print("-" * 30)
 
+print("--- Probando API FastAPI (POST Crear Saludo) ---")
+try:
+    # Datos correctos
+    datos_para_enviar_fastapi_ok = {"nombre": "Barry Allen", "edad": 30}
+
+    response_fastapi_post_ok = requests.post(url_fastapi_saludo_post, json=datos_para_enviar_fastapi_ok)
+    response_fastapi_post_ok.raise_for_status()
+
+    datos_recibidos_fastapi_ok = response_fastapi_post_ok.json()
+    print(f"Respuesta de FastAPI POST OK (código {response_fastapi_post_ok.status_code}):")
+    print(json.dumps(datos_recibidos_fastapi_ok, indent=2, ensure_ascii=False))
+    print() # Salto de línea
+
+    # Datos incorrectos (falta 'nombre', 'edad' es un string)
+    datos_para_enviar_fastapi_error = {"apelido": "Wayne", "edad": "treinta y cinco"}
+
+    print("Intentando enviar datos incorrectos a FastAPI POST...")
+    response_fastapi_post_error = requests.post(url_fastapi_saludo_post, json=datos_para_enviar_fastapi_error)
+    # NO usamos raise_for_status() aquí para poder ver el cuerpo del error 422
+
+    print(f"Respuesta de FastAPI POST con error (código {response_fastapi_post_error.status_code}):")
+    # El error 422 de FastAPI ya es JSON, así que lo imprimimos directamente
+    print(json.dumps(response_fastapi_post_error.json(), indent=2, ensure_ascii=False))
+    print("-" * 30)
+
+except requests.exceptions.HTTPError as http_err:
+    print(f"Error HTTP al conectar con la API de FastAPI (POST): {http_err}")
+    try:
+        error_details = http_err.response.json()
+        print("Detalles del error (JSON):")
+        print(json.dumps(error_details, indent=2, ensure_ascii=False))
+    except json.JSONDecodeError:
+        print(f"Detalles del error (texto): {http_err.response.text}")
+    print("-" * 30)
+except requests.exceptions.RequestException as req_err:
+    print(f"Error de conexión con la API de FastAPI (POST): {req_err}")
+    print("-" * 30)
