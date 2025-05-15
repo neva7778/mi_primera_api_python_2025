@@ -1,4 +1,12 @@
-from flask import Flask
+from flask import Flask, jsonify
+
+"""
+Hemos añadido jsonify a nuestra línea de importación. jsonify es una función
+de Flask muy útil que toma un diccionario de Python (o una lista) y lo convierte
+en una cadena con formato JSON. Además, y muy importante, configura correctamente
+la cabecera HTTP Content-Type de la respuesta a application/json. Esto le dice al
+cliente (navegador, script, etc.) que el contenido que está recibiendo es JSON.
+"""
 
 # 1. Crear una instancia de la aplicación Flask
 app = Flask(__name__)
@@ -24,6 +32,33 @@ debajo del decorador se ejecutará.
 La ruta '/' representa la URL raíz de nuestro sitio web (por ejemplo, si tu
 servidor se ejecuta en http://127.0.0.1:5000, entonces '/' corresponde
 a http://127.0.0.1:5000/).
+"""
+
+
+# Nuevo endpoint o ruta que devuelve JSON
+"""
+Es una buena práctica común prefijar las rutas de tu API con /api/ para distinguirlas
+de las rutas que podrían servir páginas web HTML tradicionales, aunque no es estrictamente
+obligatorio.
+"""
+@app.route('/api/saludo')
+def api_saludo():
+    # Creamos un diccionario de Python
+    mensaje = {
+        "id": 1,
+        "texto": "Hola desde mi primera API con Flask!",
+        "lenguaje": "Python",
+        "tipo": "JSON"
+    }
+    # Usamos jsonify para convertir el diccionario en un objeto JSON
+    # y establecer la cabecera Content-Type a application/json
+    return jsonify(mensaje)
+
+"""
+En lugar de devolver una simple cadena de texto como antes, ahora usamos jsonify(mensaje).
+Flask tomará el diccionario mensaje, lo convertirá en una cadena JSON válida (por ejemplo,
+{"id": 1, "texto": "¡Hola desde mi primera API con Flask!", ...}), y creará una respuesta
+HTTP con esa cadena como cuerpo y la cabecera Content-Type establecida en application/json.
 """
 
 
