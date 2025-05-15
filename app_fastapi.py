@@ -59,7 +59,7 @@ funciones def síncronas de manera eficiente ejecutándolas en un pool de hilos
 separado si es necesario.
 """
 
-@app.get("/item/{item_id}")
+@app.get("/items/{item_id}")
 async def leer_item(item_id: int, q: str | None = None):
     """
     Lee un item por su ID y opcionalmente un query string adicional.
