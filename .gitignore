@@ -1,0 +1,20 @@
+# Entornos virtuales
+.venv/
+venv/
+ENV/
+env/
+*.env
+
+# Archivos compilados de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de IDE y configuración local
+.vscode/
+.idea/
+*.DS_Store
+
+# Otros
+# .env # Si usas archivos .env para variables de entorno sensibles, no los subas
