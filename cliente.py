@@ -10,7 +10,12 @@ con json.dumps() para "imprimir bonito" el JSON
 """Definimos las URLs completas de los endpoints que creamos en
 nuestros servidores Flask y FastAPI.
 """
-url_flask_saludo = "http://127.0.0.1:5000/api/saludo"
+
+# URLs de nuestros endpoints Flask
+url_flask_saludo_get = "http://127.0.0.1:5000/api/saludo"
+url_flask_saludo_post = "http://127.0.0.1:5000/api/crear_saludo" # Nuevo endpoint
+
+# URLs de nuestros endpoints FastAPI
 url_fastapi_raiz = "http://127.0.0.1:8000/"
 url_fastapi_item = "http://127.0.0.1:8000/items/42?q=consulta_desde_cliente"
 
@@ -23,31 +28,31 @@ una excepción. Esto evita que nuestro script cliente se bloquee.
 
 print("--- Probando API Flask ---")
 try:
-    response_flask = requests.get(url_flask_saludo)
+    response_flask_get = requests.get(url_flask_saludo_get)
     # Usamos la función requests.get() para realizar una solicitud HTTP GET a la URL especificada.
     # El resultado se almacena en la variable response_flask. Este es un objeto Response de la librería requests.
     
-    response_flask.raise_for_status() # Lanza una excepción para códigos de error HTTP (4xx o 5xx)
+    response_flask_get.raise_for_status() # Lanza una excepción para códigos de error HTTP (4xx o 5xx)
     """Si la solicitud HTTP resultó en un código de estado de error del cliente (4xx) o del
     servidor (5xx), este método lanzará una excepción HTTPError. Si la solicitud fue exitosa
     (códigos 2xx), no hace nada. Es una forma rápida de verificar errores comunes.
     """
 
-    datos_flask = response_flask.json() # Convierte la respuesta JSON a un diccionario Python
+    datos_flask_get = response_flask_get.json() # Convierte la respuesta JSON a un diccionario Python
     """Si la respuesta del servidor contiene datos JSON válidos (y la cabecera Content-Type
     es application/json, lo cual Flask y FastAPI hacen por nosotros), este método automáticamente:
     - Lee el contenido del cuerpo de la respuesta.
     - Parsea (convierte) la cadena JSON en una estructura de datos de Python (generalmente un diccionario o una lista).
     """
 
-    print(f"Respuesta de Flask (código {response_flask.status_code}):")
+    print(f"Respuesta de Flask (código {response_flask_get.status_code}):")
     """El objeto Response también tiene un atributo status_code que
     contiene el código de estado HTTP devuelto por el servidor
     (por ejemplo, 200 para OK, 404 para Not Found).
     """
     
     # Usamos json.dumps para una impresión más legible del JSON
-    print(json.dumps(datos_flask, indent=2, ensure_ascii=False)) 
+    print(json.dumps(datos_flask_get, indent=2, ensure_ascii=False)) 
     """json.dumps() toma un objeto Python (como nuestro diccionario
     datos_flask) y lo convierte de nuevo en una cadena con formato JSON.
     - indent=2: Le dice a dumps que indente la salida JSON con 2 espacios,
@@ -62,6 +67,35 @@ try:
 
 except requests.exceptions.RequestException as e:
     print(f"Error al conectar con la API de Flask: {e}")
+    print("-" * 30)
+
+
+print("--- Probando API Flask (POST Crear Saludo) ---")
+try:
+    # Datos que vamos a enviar en el cuerpo de la solicitud POST
+    datos_para_enviar_flask = {"nombre": "Ana Conda"} 
+
+    # Hacemos la solicitud POST, enviando los datos como JSON
+    # requests se encarga de establecer la cabecera Content-Type a application/json
+    # Usamos requests.post() para realizar la solicitud POST
+    response_flask_post = requests.post(url_flask_saludo_post, json=datos_para_enviar_flask)
+    """json=datos_para_enviar_flask: Este es un parámetro muy conveniente
+    de requests. Cuando le pasas un diccionario al parámetro json, requests
+    automáticamente:
+    -Convierte el diccionario Python a una cadena JSON.
+    - Establece la cabecera HTTP Content-Type a application/json.
+    - Coloca la cadena JSON en el cuerpo de la solicitud POST.
+    """
+
+    response_flask_post.raise_for_status() # Chequea errores HTTP
+
+    datos_recibidos_flask = response_flask_post.json()
+    print(f"Respuesta de Flask POST (código {response_flask_post.status_code}):")
+    print(json.dumps(datos_recibidos_flask, indent=2, ensure_ascii=False))
+    print("-" * 30)
+
+except requests.exceptions.RequestException as e:
+    print(f"Error al conectar con la API de Flask (POST): {e}")
     print("-" * 30)
 
 
